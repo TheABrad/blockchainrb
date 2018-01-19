@@ -1,3 +1,6 @@
+require 'digest'
+require 'json'
+
 class Blockchain
   
   attr_acessor :chain
@@ -5,10 +8,24 @@ class Blockchain
   def initialize
     @chain = []
     @current_transactions = []
+
+    new_block(100, 1)
   end
 
-  def new_block
+  def new_block(proof, previous_hash = nil)
+    block = {
+      index: @chain.length + 1,
+      timestamp: Time.now,
+      transactions: @current_transactions,
+      proof: proof,
+      previous_hash: previous_hash || hash(last_block)
+    }
 
+    # reset the current list of transactions
+    @current_transactions = []
+
+    @chain << block
+    block
   end
 
   def new_transaction(sender, recipient, amount)
@@ -18,14 +35,15 @@ class Blockchain
       amount: amount
     }
 
-    return last_block[:index] + 1
+    last_block[:index] + 1
   end
 
   def hash(block)
-
+    block_string = block.sort.to_h.to_json
+    Digest::SHA256.hexdigest block_string
   end
 
   def last_block
-
+    @chain[-1]
   end
 end
