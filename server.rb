@@ -9,7 +9,29 @@ node_identifier = SecureRandom.uuid.delete('-', '')
 @blockchain = Blockchain.new
 
 get '/mine' do
-  "We'll mine a new Block"
+  # Proof of Work algorithm to get next proof
+  last_block = @blockchain.last_block
+  last_proof = last_block[:proof]
+  proof = @blockchain.proof_of_work(last_proof)
+
+  @blockchain.new_transaction(
+    sender = "0",
+    recipient = node_identifier,
+    amount = 1
+  )
+
+  block = @blockchain.new_block(proof)
+
+  response = {
+    message: 'New Block Forged',
+    index: block[:index],
+    transactions: block[:transactions],
+    proof: block[:proof],
+    previous_hash: block[:previous_hash]
+  }
+
+  status 200
+  body response.to_json
 end
 
 post '/transactions/new' do
