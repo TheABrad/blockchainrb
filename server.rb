@@ -3,7 +3,7 @@ require 'sinatra'
 require 'json'
 require 'securerandom'
 
-node_identifier = SecureRandom.uuid.gsub('-', '')
+node_identifier = SecureRandom.uuid.delete('-', '')
 
 # Instantiate the blockchain
 @blockchain = Blockchain.new
@@ -13,7 +13,22 @@ get '/mine' do
 end
 
 post '/transactions/new' do
-  "We'll add a new transaction"
+  values = JSON.parse(request.body.read)
+
+  required = ['sender', 'recipient', 'amount']
+  
+  unless required.all? { |s| values.key? s }
+    status 400
+    body = { message: 'Error: Missing values' }.to_json
+    return
+  end
+
+  index = @blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
+
+  response = { message: "Transaction will be added to Block #{index}" }
+
+  status 201
+  body response.to_json
 end
 
 get '/chain' do
@@ -23,5 +38,5 @@ get '/chain' do
   }
 
   status 200
-  body.response.to_json
+  body response.to_json
 end
