@@ -6,21 +6,21 @@ require 'securerandom'
 node_identifier = SecureRandom.uuid.delete('-', '')
 
 # Instantiate the blockchain
-@blockchain = Blockchain.new
+blockchain = Blockchain.new
 
 get '/mine' do
   # Proof of Work algorithm to get next proof
-  last_block = @blockchain.last_block
+  last_block = blockchain.last_block
   last_proof = last_block[:proof]
-  proof = @blockchain.proof_of_work(last_proof)
+  proof = blockchain.proof_of_work(last_proof)
 
-  @blockchain.new_transaction(
+  blockchain.new_transaction(
     sender = "0",
     recipient = node_identifier,
     amount = 1
   )
 
-  block = @blockchain.new_block(proof)
+  block = blockchain.new_block(proof)
 
   response = {
     message: 'New Block Forged',
@@ -45,7 +45,7 @@ post '/transactions/new' do
     return
   end
 
-  index = @blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
+  index = blockchain.new_transaction(values['sender'], values['recipient'], values['amount'])
 
   response = { message: "Transaction will be added to Block #{index}" }
 

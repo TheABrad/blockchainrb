@@ -3,7 +3,7 @@ require 'json'
 
 class Blockchain
   
-  attr_acessor :chain
+  attr_accessor :chain
 
   def initialize
     @chain = []
